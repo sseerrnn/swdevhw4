@@ -1,4 +1,5 @@
 const Hospital = require("../models/Hospital");
+const vacCenter = require("../models/VacCenter");
 
 exports.getHospitals = async (req, res, next) => {
   let query;
@@ -43,16 +44,20 @@ exports.getHospitals = async (req, res, next) => {
 
   //Pagination
   const page = parseInt(req.query.page, 10) || 1;
+
   const limit = parseInt(req.query.limit, 10) || 25;
+
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
   const total = await Hospital.countDocuments();
 
   query = query.skip(startIndex).limit(limit);
+  console.log(query);
 
   //Executing query
   try {
     const hospitals = await query;
+
     // Pagination result
     const pagination = {};
     if (endIndex < total) {
@@ -118,4 +123,18 @@ exports.deleteHospital = async (req, res, next) => {
   } catch (err) {
     res.status(400).json({ success: false });
   }
+};
+
+//@desc    Get vaccine centers
+//@route   GET /api/v1/hospitals/vacCenters
+//@access  Public
+exports.getVacCenters = (req, res, next) => {
+  vacCenter.getAll((err, data) => {
+    if (err) {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving vacCenters.",
+      });
+    } else res.send(data);
+  });
 };
